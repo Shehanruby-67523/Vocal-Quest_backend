@@ -1,18 +1,22 @@
 const express = require('express');
-const { loginUser } = require('../controllers/authController');
+const {
+  registerUser,
+  loginUser,
+  forgotPassword,
+  resetPassword,
+  getMe,
+  logoutUser,
+} = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
+
 const router = express.Router();
 
-// Public route
+router.post('/register', registerUser);
 router.post('/login', loginUser);
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', resetPassword);
 
-// Protected routes for Task 5
-router.post('/submit-quiz', protect, (req, res) => {
-  res.json({ message: "Quiz submitted successfully!" });
-});
-
-router.get('/stats', protect, (req, res) => {
-  res.json({ message: "User stats retrieved", data: { score: 85, rank: 5 } });
-});
+router.get('/me', protect, getMe);
+router.post('/logout', protect, logoutUser);
 
 module.exports = router;
