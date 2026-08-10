@@ -1,17 +1,26 @@
 const express = require('express');
+const {
+  getAllQuests,
+  getQuestById,
+  createQuest,
+  updateQuest,
+  deleteQuest,
+  startQuest,
+  completeQuest
+} = require('../controllers/questController');
+const { protect, admin } = require('../middleware/authMiddleware');
+
 const router = express.Router();
-const { protect } = require('../middleware/authMiddleware');
 
-// Public route
-router.get('/welcome', (req, res) => res.send("Welcome to the Quest"));
+// User & Public Operations
+router.get('/', protect, getAllQuests);
+router.get('/:id', protect, getQuestById);
+router.post('/:id/start', protect, startQuest);
+router.post('/:id/complete', protect, completeQuest);
 
-// Protected routes
-router.post('/submit-quiz', protect, (req, res) => {
-  res.json({ message: `Quiz submitted for user ${req.user}` });
-});
-
-router.get('/stats', protect, (req, res) => {
-  res.json({ message: `Stats retrieved for user ${req.user}` });
-});
+// Admin-Only Quest Operations
+router.post('/', protect, admin, createQuest);
+router.put('/:id', protect, admin, updateQuest);
+router.delete('/:id', protect, admin, deleteQuest);
 
 module.exports = router;

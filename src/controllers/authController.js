@@ -40,12 +40,17 @@ const registerUser = async (req, res) => {
     });
 
     res.status(201).json({
+      success: true,
+      message: 'Registration successful',
+      data: {
+        user: user.toSafeObject(),
+        token,
+      },
       token,
       user: user.toSafeObject(),
-      message: 'Registration successful',
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error during registration' });
+    res.status(500).json({ success: false, message: 'Server error during registration' });
   }
 };
 
@@ -53,7 +58,7 @@ const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ message: 'Email and password are required' });
+    return res.status(400).json({ success: false, message: 'Email and password are required' });
   }
 
   try {
@@ -66,7 +71,7 @@ const loginUser = async (req, res) => {
         req,
       });
 
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
     if (!user.isActive) {
@@ -77,7 +82,7 @@ const loginUser = async (req, res) => {
         req,
       });
 
-      return res.status(403).json({ message: 'Account is deactivated' });
+      return res.status(403).json({ success: false, message: 'Account is deactivated' });
     }
 
     const token = generateToken(user._id);
@@ -90,12 +95,17 @@ const loginUser = async (req, res) => {
     });
 
     res.json({
+      success: true,
+      message: 'Login successful',
+      data: {
+        user: user.toSafeObject(),
+        token,
+      },
       token,
       user: user.toSafeObject(),
-      message: 'Login successful',
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error during login' });
+    res.status(500).json({ success: false, message: 'Server error during login' });
   }
 };
 
@@ -103,7 +113,7 @@ const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
-    return res.status(400).json({ message: 'Email is required' });
+    return res.status(400).json({ success: false, message: 'Email is required' });
   }
 
   try {
@@ -126,17 +136,20 @@ const forgotPassword = async (req, res) => {
 
       if (process.env.NODE_ENV !== 'production') {
         return res.json({
+          success: true,
           message: 'Password reset token generated',
+          data: { resetToken },
           resetToken,
         });
       }
     }
 
     res.json({
+      success: true,
       message: 'If an account exists for that email, a reset link has been sent',
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error during password reset request' });
+    res.status(500).json({ success: false, message: 'Server error during password reset request' });
   }
 };
 
@@ -144,11 +157,11 @@ const resetPassword = async (req, res) => {
   const { token, password } = req.body;
 
   if (!token || !password) {
-    return res.status(400).json({ message: 'Reset token and new password are required' });
+    return res.status(400).json({ success: false, message: 'Reset token and new password are required' });
   }
 
   if (password.length < 6) {
-    return res.status(400).json({ message: 'Password must be at least 6 characters' });
+    return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
   }
 
   try {
@@ -160,7 +173,7 @@ const resetPassword = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired reset token' });
+      return res.status(400).json({ success: false, message: 'Invalid or expired reset token' });
     }
 
     user.password = password;
@@ -175,14 +188,20 @@ const resetPassword = async (req, res) => {
       req,
     });
 
-    res.json({ message: 'Password reset successful' });
+    res.json({ success: true, message: 'Password reset successful' });
   } catch (error) {
-    res.status(500).json({ message: 'Server error during password reset' });
+    res.status(500).json({ success: false, message: 'Server error during password reset' });
   }
 };
 
 const getMe = async (req, res) => {
-  res.json({ user: req.user.toSafeObject() });
+  const safeUser = req.user.toSafeObject ? req.user.toSafeObject() : req.user;
+  res.json({
+    success: true,
+    message: 'User profile retrieved successfully',
+    data: { user: safeUser },
+    user: safeUser,
+  });
 };
 
 const logoutUser = async (req, res) => {
@@ -193,7 +212,7 @@ const logoutUser = async (req, res) => {
     req,
   });
 
-  res.json({ message: 'Logout successful' });
+  res.json({ success: true, message: 'Logout successful' });
 };
 
 module.exports = {
