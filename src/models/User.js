@@ -4,10 +4,13 @@ const bcrypt = require('bcryptjs');
 const userSchema = mongoose.Schema(
   {
     name: { type: String, trim: true },
+    username: { type: String, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, required: true, minlength: 6 },
     role: { type: String, enum: ['player', 'admin'], default: 'player' },
     isActive: { type: Boolean, default: true },
+    bio: { type: String, default: '' },
+    profilePic: { type: String, default: '' },
     resetPasswordToken: { type: String },
     resetPasswordExpire: { type: Date },
   },
@@ -29,10 +32,13 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 userSchema.methods.toSafeObject = function () {
   return {
     id: this._id,
-    name: this.name,
+    name: this.name || this.username || '',
+    username: this.username || this.name || '',
     email: this.email,
     role: this.role,
     isActive: this.isActive,
+    bio: this.bio || '',
+    profilePic: this.profilePic || '',
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
   };
