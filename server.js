@@ -24,9 +24,16 @@ app.get('/api', (req, res) => {
   });
 });
 
+// Welcome / Health check route
+app.get('/', (req, res) => {
+  res.json({ message: "Vocal Quest API is running successfully!" });
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/game', gameRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/quests', questRoutes);
 app.use('/api/admin', adminRoutes);
