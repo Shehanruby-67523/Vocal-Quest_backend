@@ -50,19 +50,27 @@ const registerUser = async (req, res) => {
       user: user.toSafeObject(),
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Server error during registration' });
+    console.error('❌ Server error during registration:', error);
+    res.status(500).json({ success: false, message: error.message || 'Server error during registration', error: error.stack });
   }
 };
 
 const loginUser = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, username, password } = req.body;
+  const identifier = (email || username || '').trim().toLowerCase();
 
-  if (!email || !password) {
-    return res.status(400).json({ success: false, message: 'Email and password are required' });
+  if (!identifier || !password) {
+    return res.status(400).json({ success: false, message: 'Email/Username and password are required' });
   }
 
   try {
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({
+      $or: [
+        { email: identifier },
+        { username: identifier },
+        { name: identifier }
+      ]
+    });
 
     if (!user || !(await user.matchPassword(password))) {
       await createAuditLog({
