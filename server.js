@@ -9,6 +9,7 @@ const gameRoutes = require('./src/routes/gameRoutes.js');
 const questRoutes = require('./src/routes/questRoutes.js');
 const adminRoutes = require('./src/routes/adminRoutes.js');
 const voicePrintRoutes = require('./src/routes/voicePrintRoutes.js');
+const quizRoutes = require('./src/routes/quizRoutes.js');
 
 dotenv.config();
 connectDB();
@@ -47,6 +48,7 @@ app.use('/api/quest', questRoutes);
 app.use('/api/quests', questRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/voice-print', voicePrintRoutes);
+app.use('/api/quiz', quizRoutes);
 
 // 404 Route Handler
 app.use((req, res, next) => {
